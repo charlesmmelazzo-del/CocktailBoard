@@ -38,13 +38,19 @@ export async function POST(req: Request) {
     );
   }
 
+  // The very first account to register becomes the admin.
+  const count = await query<{ count: string }>("SELECT count(*) AS count FROM users");
+  const isFirstUser = Number(count[0]?.count ?? 0) === 0;
+
   const hash = await bcrypt.hash(password, 10);
-  const rows = await query<{ id: number; username: string }>(
-    "INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING id, username",
-    [username, hash],
+  const rows = await query<{ id: number; username: string; is_admin: boolean }>(
+    "INSERT INTO users (username, password_hash, is_admin) VALUES ($1, $2, $3) RETURNING id, username, is_admin",
+    [username, hash, isFirstUser],
   );
   const user = rows[0];
 
   await createSession({ userId: user.id, username: user.username });
-  return NextResponse.json({ user });
+  return NextResponse.json({
+    user: { id: user.id, username: user.username, is_admin: user.is_admin },
+  });
 }

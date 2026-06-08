@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { getSession, currentUserIsAdmin } from "@/lib/auth";
 
 export async function GET() {
   const session = await getSession();
@@ -7,6 +7,10 @@ export async function GET() {
     return NextResponse.json({ user: null }, { status: 200 });
   }
   return NextResponse.json({
-    user: { id: session.userId, username: session.username },
+    user: {
+      id: session.userId,
+      username: session.username,
+      is_admin: await currentUserIsAdmin(),
+    },
   });
 }

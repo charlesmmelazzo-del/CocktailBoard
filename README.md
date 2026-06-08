@@ -19,9 +19,14 @@ cards into categories — so you can compare picks and find where you all agree.
   notes, labeled with who wrote them.
 - **Counts everywhere** — every category shows how many cocktails it holds and a
   breakdown by base spirit; a global panel shows totals across all cocktails.
-- **Board switcher** — view your board, anyone else's board, or the
-  **Consensus** view, which shows where multiple people put the same cocktail in
-  the same category (a "4/5 agree" badge), surfacing overlap and disagreement.
+- **Board switcher** — view your board, anyone else's board, the **Consensus**
+  view (shows where multiple people put the same cocktail in the same category
+  with a "4/5 agree" badge, surfacing overlap and disagreement), or **Compare**
+  mode, where you check off several people and see their boards stacked together.
+- **Admin** — the first account to sign up becomes the admin. Admins get a
+  **Manage users** panel to rename users, reset passwords, grant/revoke admin,
+  and delete users. (There's always at least one admin, and you can't delete
+  yourself.)
 - **Bright color coding** — each base spirit has its own vivid color: Bourbon,
   Rye, Single Malt, Rum, Gin, Tequila, Mezcal, Agave Other, Shochu, Brandy,
   Other.

@@ -18,9 +18,11 @@ export async function POST(req: Request) {
     id: number;
     username: string;
     password_hash: string;
-  }>("SELECT id, username, password_hash FROM users WHERE lower(username) = lower($1)", [
-    username,
-  ]);
+    is_admin: boolean;
+  }>(
+    "SELECT id, username, password_hash, is_admin FROM users WHERE lower(username) = lower($1)",
+    [username],
+  );
 
   const user = rows[0];
   if (!user || !(await bcrypt.compare(password, user.password_hash))) {
@@ -31,5 +33,7 @@ export async function POST(req: Request) {
   }
 
   await createSession({ userId: user.id, username: user.username });
-  return NextResponse.json({ user: { id: user.id, username: user.username } });
+  return NextResponse.json({
+    user: { id: user.id, username: user.username, is_admin: user.is_admin },
+  });
 }
