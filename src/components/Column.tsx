@@ -13,6 +13,7 @@ interface ColumnProps {
   cocktailIds: number[];
   cocktailsById: Map<number, Cocktail>;
   noteCounts: Map<number, number>;
+  usersById: Map<number, string>;
   editable: boolean;
   isPool?: boolean;
   onOpenCocktail: (id: number) => void;
@@ -28,6 +29,7 @@ export function Column({
   cocktailIds,
   cocktailsById,
   noteCounts,
+  usersById,
   editable,
   isPool,
   onOpenCocktail,
@@ -129,6 +131,8 @@ export function Column({
           )}
           {cocktails.map((c) => {
             const noteCount = noteCounts.get(c.id) || 0;
+            const addedBy =
+              c.created_by != null ? usersById.get(c.created_by) : undefined;
             const agree =
               agreement && agreementTotal
                 ? { count: agreement.get(c.id) || 0, total: agreementTotal }
@@ -138,6 +142,7 @@ export function Column({
                 key={c.id}
                 cocktail={c}
                 noteCount={noteCount}
+                addedBy={addedBy}
                 onOpen={() => onOpenCocktail(c.id)}
               />
             ) : (
@@ -145,6 +150,7 @@ export function Column({
                 key={c.id}
                 cocktail={c}
                 noteCount={noteCount}
+                addedBy={addedBy}
                 onOpen={() => onOpenCocktail(c.id)}
                 agreement={agree}
               />

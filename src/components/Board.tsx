@@ -132,6 +132,12 @@ export function Board({
     return m;
   }, [state.cocktails]);
 
+  const usersById = useMemo(() => {
+    const m = new Map<number, string>();
+    for (const u of state.users) m.set(u.id, u.username);
+    return m;
+  }, [state.users]);
+
   const noteCounts = useMemo(() => {
     const m = new Map<number, number>();
     for (const n of state.notes) m.set(n.cocktail_id, (m.get(n.cocktail_id) || 0) + 1);
@@ -263,6 +269,7 @@ export function Board({
     categories,
     cocktailsById,
     noteCounts,
+    usersById,
     onOpenCocktail: setOpenId,
   };
 
@@ -341,6 +348,11 @@ export function Board({
               <StaticCocktailCard
                 cocktail={cocktailsById.get(activeId)!}
                 noteCount={noteCounts.get(activeId) || 0}
+                addedBy={
+                  cocktailsById.get(activeId)!.created_by != null
+                    ? usersById.get(cocktailsById.get(activeId)!.created_by!)
+                    : undefined
+                }
                 onOpen={() => {}}
               />
             ) : null}
@@ -361,6 +373,11 @@ export function Board({
           cocktail={openCocktail}
           notes={notesFor(openCocktail.id)}
           currentUserId={currentUser.id}
+          addedBy={
+            openCocktail.created_by != null
+              ? usersById.get(openCocktail.created_by)
+              : undefined
+          }
           onClose={() => setOpenId(null)}
           onChanged={fetchState}
         />
@@ -383,6 +400,7 @@ function BoardStrip({
   categories,
   cocktailsById,
   noteCounts,
+  usersById,
   editable,
   poolTitle,
   onOpenCocktail,
@@ -397,6 +415,7 @@ function BoardStrip({
   categories: Category[];
   cocktailsById: Map<number, Cocktail>;
   noteCounts: Map<number, number>;
+  usersById: Map<number, string>;
   editable: boolean;
   poolTitle: string;
   onOpenCocktail: (id: number) => void;
@@ -414,6 +433,7 @@ function BoardStrip({
         cocktailIds={columns[POOL_ID] || []}
         cocktailsById={cocktailsById}
         noteCounts={noteCounts}
+        usersById={usersById}
         editable={editable}
         isPool
         onOpenCocktail={onOpenCocktail}
@@ -426,6 +446,7 @@ function BoardStrip({
           cocktailIds={columns[String(cat.id)] || []}
           cocktailsById={cocktailsById}
           noteCounts={noteCounts}
+          usersById={usersById}
           editable={editable}
           onOpenCocktail={onOpenCocktail}
           onRename={onRenameCategory ? (name) => onRenameCategory(cat.id, name) : undefined}
@@ -448,6 +469,7 @@ function CompareView({
   categories,
   cocktailsById,
   noteCounts,
+  usersById,
   onOpenCocktail,
 }: {
   users: User[];
@@ -457,6 +479,7 @@ function CompareView({
   categories: Category[];
   cocktailsById: Map<number, Cocktail>;
   noteCounts: Map<number, number>;
+  usersById: Map<number, string>;
   onOpenCocktail: (id: number) => void;
 }) {
   const selected = users.filter((u) => compareIds.includes(u.id));
@@ -486,6 +509,7 @@ function CompareView({
             categories={categories}
             cocktailsById={cocktailsById}
             noteCounts={noteCounts}
+            usersById={usersById}
             editable={false}
             poolTitle="Uncategorized pool"
             onOpenCocktail={onOpenCocktail}

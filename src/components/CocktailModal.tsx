@@ -9,6 +9,7 @@ interface Props {
   cocktail: Cocktail;
   notes: Note[];
   currentUserId: number;
+  addedBy?: string;
   onClose: () => void;
   onChanged: () => void; // ask parent to re-sync from the server
 }
@@ -17,6 +18,7 @@ export function CocktailModal({
   cocktail,
   notes,
   currentUserId,
+  addedBy,
   onClose,
   onChanged,
 }: Props) {
@@ -95,7 +97,14 @@ export function CocktailModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
-          <h2 className="text-sm font-semibold text-slate-500">Cocktail</h2>
+          <h2 className="text-sm font-semibold text-slate-500">
+            Cocktail
+            {addedBy && (
+              <span className="ml-2 font-normal text-slate-400">
+                · added by {addedBy}
+              </span>
+            )}
+          </h2>
           <button
             onClick={onClose}
             className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"

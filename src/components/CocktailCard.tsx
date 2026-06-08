@@ -9,6 +9,7 @@ interface CardProps {
   cocktail: Cocktail;
   noteCount: number;
   onOpen: () => void;
+  addedBy?: string;
   agreement?: { count: number; total: number };
 }
 
@@ -17,6 +18,7 @@ function CardBody({
   cocktail,
   noteCount,
   onOpen,
+  addedBy,
   agreement,
   dragging,
 }: CardProps & { dragging?: boolean }) {
@@ -34,9 +36,16 @@ function CardBody({
         style={{ background: s.color }}
       />
       <div className="flex items-start justify-between gap-2">
-        <p className="text-sm font-medium leading-snug text-slate-900">
-          {cocktail.name}
-        </p>
+        <div className="min-w-0">
+          <p className="text-sm font-medium leading-snug text-slate-900">
+            {cocktail.name}
+          </p>
+          {addedBy && (
+            <p className="mt-0.5 text-[11px] text-slate-400">
+              added by {addedBy}
+            </p>
+          )}
+        </div>
         {agreement && (
           <span
             className="shrink-0 rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-white"
