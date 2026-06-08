@@ -47,5 +47,36 @@ export function spiritOf(id: string | null | undefined): Spirit {
   return (id && SPIRIT_MAP[id]) || SPIRIT_MAP.other;
 }
 
+// Normalize a raw list of spirit ids: keep only known ids, dedupe, preserve
+// order, and never return empty (falls back to ["other"]).
+export function normalizeSpiritIds(input: unknown): SpiritId[] {
+  const arr = Array.isArray(input)
+    ? input
+    : typeof input === "string" && input
+      ? [input]
+      : [];
+  const seen = new Set<string>();
+  const out: SpiritId[] = [];
+  for (const raw of arr) {
+    const id = SPIRIT_MAP[String(raw)] ? (String(raw) as SpiritId) : null;
+    if (id && !seen.has(id)) {
+      seen.add(id);
+      out.push(id);
+    }
+  }
+  return out.length ? out : ["other"];
+}
+
+// The base spirits of a cocktail, resolved from the array (falling back to the
+// legacy single base_spirit field for older rows).
+export function spiritIdsOf(c: {
+  base_spirits?: string[] | null;
+  base_spirit?: string | null;
+}): SpiritId[] {
+  const source =
+    c.base_spirits && c.base_spirits.length ? c.base_spirits : c.base_spirit;
+  return normalizeSpiritIds(source);
+}
+
 // Sentinel category id used for the "uncategorized" pool on the client.
 export const POOL_ID = "pool";

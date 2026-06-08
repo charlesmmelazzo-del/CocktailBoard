@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { spiritOf } from "@/lib/constants";
+import { spiritOf, spiritIdsOf } from "@/lib/constants";
 import type { Cocktail } from "@/lib/types";
 
 interface CardProps {
@@ -22,7 +22,8 @@ function CardBody({
   agreement,
   dragging,
 }: CardProps & { dragging?: boolean }) {
-  const s = spiritOf(cocktail.base_spirit);
+  const spirits = spiritIdsOf(cocktail).map(spiritOf);
+  const primary = spirits[0];
   return (
     <div
       onClick={onOpen}
@@ -30,11 +31,12 @@ function CardBody({
         dragging ? "opacity-50" : ""
       }`}
     >
-      {/* spirit color stripe */}
-      <span
-        className="absolute inset-y-0 left-0 w-1.5"
-        style={{ background: s.color }}
-      />
+      {/* spirit color stripe — split into segments for multiple base spirits */}
+      <span className="absolute inset-y-0 left-0 flex w-1.5 flex-col overflow-hidden">
+        {spirits.map((sp, i) => (
+          <span key={sp.id + i} className="flex-1" style={{ background: sp.color }} />
+        ))}
+      </span>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-sm font-medium leading-snug text-slate-900">
@@ -50,7 +52,7 @@ function CardBody({
           <span
             className="shrink-0 rounded-full px-1.5 py-0.5 text-[11px] font-bold tabular-nums text-white"
             style={{
-              background: s.color,
+              background: primary.color,
               opacity: 0.4 + 0.6 * (agreement.count / Math.max(agreement.total, 1)),
             }}
             title={`${agreement.count} of ${agreement.total} boards`}
@@ -59,13 +61,16 @@ function CardBody({
           </span>
         )}
       </div>
-      <div className="mt-1.5 flex items-center gap-2">
-        <span
-          className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-          style={{ background: s.color, color: s.text }}
-        >
-          {s.label}
-        </span>
+      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+        {spirits.map((sp, i) => (
+          <span
+            key={sp.id + i}
+            className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+            style={{ background: sp.color, color: sp.text }}
+          >
+            {sp.label}
+          </span>
+        ))}
         {noteCount > 0 && (
           <span className="inline-flex items-center gap-0.5 text-[11px] text-slate-400">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">

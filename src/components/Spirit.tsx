@@ -1,6 +1,6 @@
 "use client";
 
-import { SPIRITS, spiritOf, type SpiritId } from "@/lib/constants";
+import { SPIRITS, spiritOf, spiritIdsOf, type SpiritId } from "@/lib/constants";
 import type { Cocktail } from "@/lib/types";
 
 export function SpiritDot({ id, size = 10 }: { id: string; size?: number }) {
@@ -30,7 +30,9 @@ export function SpiritPill({ id }: { id: string }) {
 export function SpiritBreakdown({ cocktails }: { cocktails: Cocktail[] }) {
   const counts = new Map<string, number>();
   for (const c of cocktails) {
-    counts.set(c.base_spirit, (counts.get(c.base_spirit) || 0) + 1);
+    for (const id of spiritIdsOf(c)) {
+      counts.set(id, (counts.get(id) || 0) + 1);
+    }
   }
   const present = SPIRITS.filter((s) => counts.get(s.id));
   if (present.length === 0) {
@@ -54,22 +56,29 @@ export function SpiritBreakdown({ cocktails }: { cocktails: Cocktail[] }) {
   );
 }
 
+// Multi-select spirit picker — a cocktail can have one or more base spirits
+// (e.g. when a build is split between two bases).
 export function SpiritPicker({
   value,
   onChange,
 }: {
-  value: string;
-  onChange: (id: SpiritId) => void;
+  value: string[];
+  onChange: (ids: string[]) => void;
 }) {
+  function toggle(id: SpiritId) {
+    onChange(
+      value.includes(id) ? value.filter((x) => x !== id) : [...value, id],
+    );
+  }
   return (
     <div className="flex flex-wrap gap-1.5">
       {SPIRITS.map((s) => {
-        const active = s.id === value;
+        const active = value.includes(s.id);
         return (
           <button
             key={s.id}
             type="button"
-            onClick={() => onChange(s.id)}
+            onClick={() => toggle(s.id)}
             className={`rounded-full px-2.5 py-1 text-xs font-semibold transition ${
               active ? "ring-2 ring-offset-1 ring-slate-900" : "opacity-60 hover:opacity-100"
             }`}

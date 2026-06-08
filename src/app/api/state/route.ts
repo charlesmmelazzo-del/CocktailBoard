@@ -12,7 +12,7 @@ export async function GET() {
   const [users, cocktails, categories, placements, notes] = await Promise.all([
     query("SELECT id, username FROM users ORDER BY id"),
     query(
-      "SELECT id, name, recipe, base_spirit, created_by, created_at, updated_at FROM cocktails ORDER BY id",
+      "SELECT id, name, recipe, base_spirit, base_spirits, created_by, created_at, updated_at FROM cocktails ORDER BY id",
     ),
     query(
       "SELECT id, name, position, created_at FROM categories ORDER BY position, id",

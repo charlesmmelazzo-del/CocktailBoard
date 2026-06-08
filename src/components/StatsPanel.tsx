@@ -1,14 +1,16 @@
 "use client";
 
-import { SPIRITS } from "@/lib/constants";
+import { SPIRITS, spiritIdsOf } from "@/lib/constants";
 import type { Cocktail } from "@/lib/types";
 
 // The always-visible totals: how many cocktails exist overall, broken down by
-// base spirit.
+// base spirit. A split-base cocktail counts toward each of its spirits.
 export function StatsPanel({ cocktails }: { cocktails: Cocktail[] }) {
   const counts = new Map<string, number>();
   for (const c of cocktails) {
-    counts.set(c.base_spirit, (counts.get(c.base_spirit) || 0) + 1);
+    for (const id of spiritIdsOf(c)) {
+      counts.set(id, (counts.get(id) || 0) + 1);
+    }
   }
 
   return (

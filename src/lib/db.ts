@@ -56,14 +56,21 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 
 CREATE TABLE IF NOT EXISTS cocktails (
-  id          SERIAL PRIMARY KEY,
-  name        TEXT NOT NULL,
-  recipe      TEXT NOT NULL DEFAULT '',
-  base_spirit TEXT NOT NULL DEFAULT 'other',
-  created_by  INTEGER REFERENCES users(id) ON DELETE SET NULL,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+  id           SERIAL PRIMARY KEY,
+  name         TEXT NOT NULL,
+  recipe       TEXT NOT NULL DEFAULT '',
+  base_spirit  TEXT NOT NULL DEFAULT 'other',
+  base_spirits TEXT[] NOT NULL DEFAULT '{}',
+  created_by   INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- A cocktail can have more than one base spirit (split bases). Add the array
+-- column to older databases and seed it from the single base_spirit value.
+ALTER TABLE cocktails ADD COLUMN IF NOT EXISTS base_spirits TEXT[] NOT NULL DEFAULT '{}';
+UPDATE cocktails SET base_spirits = ARRAY[base_spirit]
+  WHERE cardinality(base_spirits) = 0 AND base_spirit IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS placements (
   user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,

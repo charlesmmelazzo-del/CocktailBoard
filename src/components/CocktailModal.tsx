@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { SpiritPicker } from "./Spirit";
 import type { Cocktail, Note } from "@/lib/types";
-import type { SpiritId } from "@/lib/constants";
+import { spiritIdsOf } from "@/lib/constants";
 
 interface Props {
   cocktail: Cocktail;
@@ -24,8 +24,10 @@ export function CocktailModal({
 }: Props) {
   const [name, setName] = useState(cocktail.name);
   const [recipe, setRecipe] = useState(cocktail.recipe);
-  const [spirit, setSpirit] = useState<string>(cocktail.base_spirit);
+  const [spirits, setSpirits] = useState<string[]>(spiritIdsOf(cocktail));
   const [savingDetails, setSavingDetails] = useState(false);
+
+  const spiritKey = spiritIdsOf(cocktail).join(",");
 
   const myNote = notes.find((n) => n.user_id === currentUserId);
   const otherNotes = notes.filter((n) => n.user_id !== currentUserId);
@@ -36,8 +38,9 @@ export function CocktailModal({
   useEffect(() => {
     setName(cocktail.name);
     setRecipe(cocktail.recipe);
-    setSpirit(cocktail.base_spirit);
-  }, [cocktail.id, cocktail.name, cocktail.recipe, cocktail.base_spirit]);
+    setSpirits(spiritIdsOf(cocktail));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cocktail.id, cocktail.name, cocktail.recipe, spiritKey]);
 
   useEffect(() => {
     if (!myNote) return;
@@ -48,7 +51,7 @@ export function CocktailModal({
   const detailsDirty =
     name.trim() !== cocktail.name ||
     recipe !== cocktail.recipe ||
-    spirit !== cocktail.base_spirit;
+    spirits.join(",") !== spiritKey;
 
   async function saveDetails() {
     if (!name.trim()) return;
@@ -57,7 +60,7 @@ export function CocktailModal({
       await fetch("/api/cocktails", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: cocktail.id, name, recipe, base_spirit: spirit }),
+        body: JSON.stringify({ id: cocktail.id, name, recipe, base_spirits: spirits }),
       });
       onChanged();
     } finally {
@@ -129,9 +132,9 @@ export function CocktailModal({
 
           <div>
             <label className="mb-1.5 block text-xs font-medium text-slate-500">
-              Base spirit
+              Base spirit(s) — tap more than one for a split base
             </label>
-            <SpiritPicker value={spirit} onChange={(id: SpiritId) => setSpirit(id)} />
+            <SpiritPicker value={spirits} onChange={setSpirits} />
           </div>
 
           <div>

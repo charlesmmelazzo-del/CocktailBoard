@@ -20,7 +20,7 @@ import { StatsPanel } from "./StatsPanel";
 import { CocktailModal } from "./CocktailModal";
 import { AdminPanel } from "./AdminPanel";
 import { SpiritPicker } from "./Spirit";
-import { POOL_ID, type SpiritId } from "@/lib/constants";
+import { POOL_ID } from "@/lib/constants";
 import type { BoardState, Cocktail, Category, Note, User } from "@/lib/types";
 
 type Columns = Record<string, number[]>;
@@ -741,7 +741,7 @@ function NewCocktail({
   onCreated: () => void;
 }) {
   const [name, setName] = useState("");
-  const [spirit, setSpirit] = useState<string>("bourbon");
+  const [spirits, setSpirits] = useState<string[]>(["bourbon"]);
   const [recipe, setRecipe] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -752,7 +752,7 @@ function NewCocktail({
       await fetch("/api/cocktails", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, base_spirit: spirit, recipe }),
+        body: JSON.stringify({ name, base_spirits: spirits, recipe }),
       });
       onCreated();
     } finally {
@@ -778,8 +778,10 @@ function NewCocktail({
           className="mb-3 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
         />
         <div className="mb-3">
-          <p className="mb-1.5 text-xs font-medium text-slate-500">Base spirit</p>
-          <SpiritPicker value={spirit} onChange={(id: SpiritId) => setSpirit(id)} />
+          <p className="mb-1.5 text-xs font-medium text-slate-500">
+            Base spirit(s) — tap more than one for a split base
+          </p>
+          <SpiritPicker value={spirits} onChange={setSpirits} />
         </div>
         <textarea
           value={recipe}

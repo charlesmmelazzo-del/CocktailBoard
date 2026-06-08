@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { SPIRIT_MAP } from "@/lib/constants";
+import { normalizeSpiritIds } from "@/lib/constants";
 
-function cleanSpirit(s: unknown): string {
-  const id = String(s || "other");
-  return SPIRIT_MAP[id] ? id : "other";
+// Accept either `base_spirits` (array) or the legacy `base_spirit` (single).
+function spiritsFrom(body: any): string[] {
+  return normalizeSpiritIds(body.base_spirits ?? body.base_spirit);
 }
 
 // Create a cocktail (shared). It starts in everyone's uncategorized pool simply
@@ -22,10 +22,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Name is required." }, { status: 400 });
   }
 
+  const spirits = spiritsFrom(body);
   const rows = await query(
-    `INSERT INTO cocktails (name, recipe, base_spirit, created_by)
-     VALUES ($1, $2, $3, $4) RETURNING id`,
-    [name, String(body.recipe || ""), cleanSpirit(body.base_spirit), session.userId],
+    `INSERT INTO cocktails (name, recipe, base_spirit, base_spirits, created_by)
+     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+    [name, String(body.recipe || ""), spirits[0], spirits, session.userId],
   );
   return NextResponse.json({ id: rows[0].id });
 }
@@ -47,11 +48,12 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Name is required." }, { status: 400 });
   }
 
+  const spirits = spiritsFrom(body);
   await query(
     `UPDATE cocktails
-        SET name = $1, recipe = $2, base_spirit = $3, updated_at = now()
-      WHERE id = $4`,
-    [name, String(body.recipe || ""), cleanSpirit(body.base_spirit), id],
+        SET name = $1, recipe = $2, base_spirit = $3, base_spirits = $4, updated_at = now()
+      WHERE id = $5`,
+    [name, String(body.recipe || ""), spirits[0], spirits, id],
   );
   return NextResponse.json({ ok: true });
 }

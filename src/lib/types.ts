@@ -7,7 +7,8 @@ export interface Cocktail {
   id: number;
   name: string;
   recipe: string;
-  base_spirit: string;
+  base_spirit: string; // primary spirit (first of base_spirits); kept for compat
+  base_spirits: string[]; // full set of base spirits (1 or more)
   created_by: number | null;
   created_at: string;
   updated_at: string;
