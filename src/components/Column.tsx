@@ -5,6 +5,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SortableCocktailCard, StaticCocktailCard } from "./CocktailCard";
 import { SpiritBreakdown } from "./Spirit";
+import { cardDndId } from "@/lib/constants";
 import type { Cocktail } from "@/lib/types";
 
 interface ColumnProps {
@@ -121,7 +122,7 @@ export function Column({
         className="scroll-thin flex-1 space-y-2 overflow-y-auto px-3 pb-3"
       >
         <SortableContext
-          items={cocktailIds.map(String)}
+          items={cocktailIds.map(cardDndId)}
           strategy={verticalListSortingStrategy}
         >
           {cocktails.length === 0 && (

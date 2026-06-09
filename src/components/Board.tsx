@@ -20,7 +20,7 @@ import { StatsPanel } from "./StatsPanel";
 import { CocktailModal } from "./CocktailModal";
 import { AdminPanel } from "./AdminPanel";
 import { SpiritPicker } from "./Spirit";
-import { POOL_ID } from "@/lib/constants";
+import { POOL_ID, cocktailIdFromDnd } from "@/lib/constants";
 import type { BoardState, Cocktail, Category, Note, User } from "@/lib/types";
 
 type Columns = Record<string, number[]>;
@@ -159,15 +159,18 @@ export function Board({
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
   );
 
+  // Resolve which column a drag id belongs to. A container id ("pool" or a
+  // category id) is itself a column key; a card id ("card:N") is looked up by
+  // the cocktail number it holds.
   const findContainer = (id: string): string | null => {
     const cols = columnsRef.current;
     if (cols[id]) return id;
-    const num = Number(id);
+    const num = cocktailIdFromDnd(id);
     return Object.keys(cols).find((k) => cols[k].includes(num)) || null;
   };
 
   function onDragStart(e: DragStartEvent) {
-    setActiveId(Number(e.active.id));
+    setActiveId(cocktailIdFromDnd(String(e.active.id)));
   }
 
   function onDragOver(e: DragOverEvent) {
@@ -182,9 +185,9 @@ export function Board({
     const cols = columnsRef.current;
     const activeItems = cols[from];
     const overItems = cols[to];
-    const activeNum = Number(activeId);
+    const activeNum = cocktailIdFromDnd(activeId);
     const overIndex =
-      overId in cols ? overItems.length : overItems.indexOf(Number(overId));
+      overId in cols ? overItems.length : overItems.indexOf(cocktailIdFromDnd(overId));
     const insertAt = overIndex >= 0 ? overIndex : overItems.length;
 
     applyColumns({
@@ -206,8 +209,10 @@ export function Board({
       if (from && to && from === to && activeId !== overId) {
         const cols = columnsRef.current;
         const items = cols[from];
-        const oldIndex = items.indexOf(Number(activeId));
-        const newIndex = overId in cols ? items.length - 1 : items.indexOf(Number(overId));
+        const oldIndex = items.indexOf(cocktailIdFromDnd(activeId));
+        const newIndex = overId in cols
+          ? items.length - 1
+          : items.indexOf(cocktailIdFromDnd(overId));
         if (oldIndex >= 0 && newIndex >= 0 && oldIndex !== newIndex) {
           applyColumns({ ...cols, [from]: arrayMove(items, oldIndex, newIndex) });
         }

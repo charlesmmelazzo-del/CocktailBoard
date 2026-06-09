@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { spiritOf, spiritIdsOf } from "@/lib/constants";
+import { spiritOf, spiritIdsOf, cardDndId } from "@/lib/constants";
 import type { Cocktail } from "@/lib/types";
 
 interface CardProps {
@@ -128,7 +128,7 @@ function CardBody({
 // Draggable variant used on the signed-in user's own editable board.
 export function SortableCocktailCard(props: CardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: String(props.cocktail.id) });
+    useSortable({ id: cardDndId(props.cocktail.id) });
 
   const style = {
     transform: CSS.Translate.toString(transform),

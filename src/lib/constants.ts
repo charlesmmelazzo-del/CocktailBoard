@@ -80,3 +80,10 @@ export function spiritIdsOf(c: {
 
 // Sentinel category id used for the "uncategorized" pool on the client.
 export const POOL_ID = "pool";
+
+// Drag-and-drop ids. Cards live in a separate "card:" namespace so a cocktail's
+// id can never collide with a category's drop-zone id (both are serial ints).
+export const cardDndId = (cocktailId: number): string => `card:${cocktailId}`;
+export const cocktailIdFromDnd = (dndId: string): number =>
+  Number(dndId.slice("card:".length));
+export const isCardDndId = (dndId: string): boolean => dndId.startsWith("card:");
